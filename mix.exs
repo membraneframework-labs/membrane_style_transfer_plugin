@@ -2,7 +2,7 @@ defmodule Membrane.StyleTransfer.Mixfile do
   use Mix.Project
 
   @version "0.1.0"
-  @github_url "https://github.com/membraneframework/membrane_style_transfer_plugin"
+  @github_url "https://github.com/membraneframework-labs/membrane_style_transfer_plugin"
 
   def project do
     [
