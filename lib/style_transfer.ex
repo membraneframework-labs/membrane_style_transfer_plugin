@@ -1,17 +1,79 @@
 defmodule Membrane.StyleTransfer do
-  alias Membrane.Native.RawVideo
+  @moduledoc """
+  `Membrane.Filter` transferring style of the video frames using AI model.
+
+  It receives and returns raw video frames in RGB format.
+
+  Available styles are:
+   - `:candy`
+   - `:kaganawa`
+   - `:mosaic`
+   - `:mosaic_mobile`
+   - `:picasso`
+   - `:princess`
+   - `:udnie`
+   - `:vangogh`
+
+  Style can be selected by specyfing `:style` option during spawning a child or by sending `{:set_style, style}` notification from a parent.
+
+  To optimize the element, you can pass some positive integer to `:batch_size` option, but remember that it will icrease the latency.
+  """
   use Membrane.Filter
 
-  def_input_pad :input, accepted_format: %RawVideo{pixel_format: :RGB}
-  def_output_pad :output, accepted_format: %RawVideo{pixel_format: :RGB}
+  defguard is_pos_integer(term) when is_integer(term) and term > 0
 
-  def_options style: [required?: true, spec: atom()]
+  def_input_pad :input,
+    accepted_format:
+      %Membrane.RawVideo{pixel_format: :RGB, height: height, width: width}
+      when is_pos_integer(height) and is_pos_integer(width)
+
+  def_output_pad :output,
+    accepted_format:
+      %Membrane.RawVideo{pixel_format: :RGB, height: height, width: width}
+      when is_pos_integer(height) and is_pos_integer(width)
+
+  def_options style: [
+                required?: true,
+                spec: style(),
+                description: """
+                Style used by the element.
+
+                Can be changed by sending `{:set_style, style}` notification from a parent.
+                """
+              ],
+              batch_size: [
+                require?: false,
+                default: 1,
+                spec: non_neg_integer(),
+                description: """
+                Number of video frames passed in one batch to the model.
+
+                Can be increased in order to optimize the element at the cost of increased latency.
+
+                Default to 1.
+                """
+              ]
 
   @styles [:candy, :kaganawa, :mosaic, :mosaic_mobile, :picasso, :princess, :udnie, :vangogh]
 
+  @type style ::
+          unquote(
+            @styles
+            |> Bunch.Typespec.enum_to_alternative()
+          )
+
+  @spec styles() :: [style()]
+  def styles(), do: @styles
+
   @impl true
-  def handle_init(_ctx, %{style: style}) when style in @styles do
-    state = %{models: %{}, current_style: style}
+  def handle_init(_ctx, %{style: style} = opts) when style in @styles do
+    state = %{
+      current_style: style,
+      batch_size: opts.batch_size,
+      models: %{},
+      batch: []
+    }
+
     {[], state}
   end
 
@@ -40,16 +102,35 @@ defmodule Membrane.StyleTransfer do
 
   @impl true
   def handle_buffer(:input, buffer, ctx, state) do
-    format = ctx.pads.input.stream_format
+    state = Map.update!(state, :batch, &(&1 ++ [buffer]))
 
-    out_payload =
-      buffer.payload
-      |> preprocess(format)
-      |> predict(state)
-      |> postprocess(format)
+    if length(state.batch) >= state.batch_size do
+      flush_batch(ctx.pads.input.stream_format, state)
+    else
+      {[], state}
+    end
+  end
 
-    buffer = %{buffer | payload: out_payload}
-    {[buffer: {:output, buffer}], state}
+  defp flush_batch(format, state) do
+    {batch, state} = Map.get_and_update!(state, :batch, &{&1, []})
+
+    input_tensor =
+      batch
+      |> Enum.map(&preprocess(&1.payload, format))
+      |> Nx.stack()
+      |> Nx.reshape({length(batch), 3, format.height, format.width})
+
+    out_tensor = predict(input_tensor, state)
+
+    out_buffers =
+      out_tensor
+      |> Nx.backend_transfer(EXLA.Backend)
+      |> Nx.to_batched(1)
+      |> Enum.map(&postprocess(&1, format))
+      |> Enum.zip(batch)
+      |> Enum.map(fn {payload, buffer} -> %{buffer | payload: payload} end)
+
+    {[buffer: {:output, out_buffers}], state}
   end
 
   defp predict(tensor, state) do
