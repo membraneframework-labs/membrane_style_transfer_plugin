@@ -36,7 +36,7 @@ defmodule Membrane.StyleTransfer do
                 required?: true,
                 spec: style(),
                 description: """
-                Style used by the element.
+                Initial style used by the element.
 
                 Can be changed by sending `{:set_style, style}` notification from a parent.
                 """
