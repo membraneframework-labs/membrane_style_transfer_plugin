@@ -118,7 +118,6 @@ defmodule Membrane.StyleTransfer do
       batch
       |> Enum.map(&preprocess(&1.payload, format))
       |> Nx.stack()
-      |> Nx.reshape({length(batch), 3, format.height, format.width})
 
     out_tensor = predict(input_tensor, state)
 
@@ -145,7 +144,6 @@ defmodule Membrane.StyleTransfer do
     |> Nx.as_type(:f32)
     |> Nx.reshape({format.height, format.width, 3})
     |> Nx.transpose(axes: [2, 0, 1])
-    |> Nx.reshape({1, 3, format.height, format.width})
   end
 
   defp postprocess(tensor, format) do
