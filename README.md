@@ -71,7 +71,7 @@ You can also change the style of played video by changing value passed in `:styl
 {:ok, _supervisor, pipeline} = Membrane.Pipeline.start_link(Example, [style: :vangogh, image_height: 400, image_width: 400])
 ```
 
-Example above used only one style at the time. Example below rotates styles atomatically every some time interval. 
+In the previous example, we applied just one style. However, in the following example, different styles are applied in rotation after fixed time intervals.
 
 ```elixir 
 defmodule RotatingExample do
