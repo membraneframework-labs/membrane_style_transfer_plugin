@@ -62,8 +62,8 @@ defmodule Membrane.StyleTransfer do
             |> Bunch.Typespec.enum_to_alternative()
           )
 
-  @spec styles() :: [style()]
-  def styles(), do: @styles
+  @spec available_styles() :: [style()]
+  def available_styles(), do: @styles
 
   @impl true
   def handle_init(_ctx, %{style: style} = opts) when style in @styles do
