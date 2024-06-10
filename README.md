@@ -37,6 +37,8 @@ Mix.install([
 ])
 ```
 
+Add implementation of the `Example` pipeline.
+
 ```elixir
 defmodule Example do
   use Membrane.Pipeline
@@ -62,14 +64,16 @@ defmodule Example do
 end
 ```
 
-If you see that the latency of the output video is increasing, reduce `image_height` or/and `image_width`.
-If you see no increase in the latency, you can also increase the value passed in both options.
-
-You can also change the style of played video by changing value passed in `:style` option. Available styles are: `:candy`, `:kaganawa`, `:mosaic`, `:mosaic_mobile`, `:picasso`, `:princess`, `:udnie` and `:vangogh`.
+And run following script:
 
 ```elixir
 {:ok, _supervisor, pipeline} = Membrane.Pipeline.start_link(Example, [style: :vangogh, image_height: 400, image_width: 400])
 ```
+
+If you see that the latency of the output video is increasing, reduce `image_height` or/and `image_width`.
+If you see no increase in the latency, you can also increase the value passed in both options.
+
+You can also change the style of played video by changing value passed in `:style` option. Available styles are: `:candy`, `:kaganawa`, `:mosaic`, `:mosaic_mobile`, `:picasso`, `:princess`, `:udnie` and `:vangogh`.
 
 In the previous example, we applied just one style. However, in the following example, different styles are applied in rotation after fixed time intervals.
 
@@ -79,6 +83,8 @@ defmodule RotatingExample do
 
   alias Membrane.FFmpeg.SWScale
   alias Membrane.StyleTransfer
+
+  @style_change_time_interval Membrane.Time.milliseconds(1_500)
 
   @impl true
   def handle_init(_ctx, opts) do
@@ -100,14 +106,13 @@ defmodule RotatingExample do
 
   @impl true
   def handle_playing(_ctx, state) do
-    interval = Membrane.Time.milliseconds(1_500)
-    {[start_timer: {:timer, interval}], state}
+    {[start_timer: {:timer, @style_change_time_interval}], state}
   end
 
   @impl true
   def handle_tick(:timer, _ctx, state) do
     new_style = 
-      StyleTransfer.styles() 
+      StyleTransfer.available_styles() 
       |> List.delete(state.current_style)
       |> Enum.random()
 

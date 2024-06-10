@@ -66,7 +66,14 @@ defmodule Membrane.StyleTransfer do
   def available_styles(), do: @styles
 
   @impl true
-  def handle_init(_ctx, %{style: style} = opts) when style in @styles do
+  def handle_init(_ctx, %{style: style} = opts) do
+    if style not in @styles do
+      raise """
+      Tried to run `#{inspect(__MODULE__)}` with option `style: #{inspect(style)}`, but values accepted in this option are: \
+      #{Enum.join(@styles, ", ")}.
+      """
+    end
+
     state = %{
       current_style: style,
       batch_size: opts.batch_size,
@@ -96,7 +103,13 @@ defmodule Membrane.StyleTransfer do
   end
 
   @impl true
-  def handle_parent_notification({:set_style, style}, _ctx, state) when style in @styles do
+  def handle_parent_notification({:set_style, style}, _ctx, state) do
+    if style not in @styles do
+      raise """
+      Tried to set style #{inspect(style)}, but available styles are: #{Enum.join(@styles, ", ")}.
+      """
+    end
+
     {[], %{state | current_style: style}}
   end
 
