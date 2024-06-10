@@ -50,7 +50,7 @@ defmodule Membrane.StyleTransfer do
 
                 Can be increased in order to optimize the element at the cost of increased latency.
 
-                Default to 1.
+                Defaults to 1.
                 """
               ]
 
