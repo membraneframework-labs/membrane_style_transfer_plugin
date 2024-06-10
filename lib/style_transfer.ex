@@ -42,7 +42,7 @@ defmodule Membrane.StyleTransfer do
                 """
               ],
               batch_size: [
-                require?: false,
+                required?: false,
                 default: 1,
                 spec: non_neg_integer(),
                 description: """
