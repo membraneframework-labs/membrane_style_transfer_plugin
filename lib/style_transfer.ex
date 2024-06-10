@@ -44,7 +44,7 @@ defmodule Membrane.StyleTransfer do
               batch_size: [
                 required?: false,
                 default: 1,
-                spec: non_neg_integer(),
+                spec: pos_integer(),
                 description: """
                 Number of video frames passed in one batch to the model.
 
