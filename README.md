@@ -24,7 +24,7 @@ end
 
 ## Usage
 
-Here we have 2 simple examples of usage `Membrane.StyleTransfer`. Both of them take video from the camera device available in your computer, perofrm style transfer and present the output video in the player.
+Here we have 2 simple examples of usage `Membrane.StyleTransfer`. Both of them take video from the camera device available in your computer, perform style transfer and present the output video in the player.
 
 On the beggining, install necessary dependencies.
 
