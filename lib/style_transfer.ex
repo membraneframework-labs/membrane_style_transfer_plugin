@@ -141,7 +141,7 @@ defmodule Membrane.StyleTransfer do
 
   defp preprocess(payload, format) do
     payload
-    |> Nx.from_binary(:s8, backend: EXLA.Backend)
+    |> Nx.from_binary(:u8, backend: EXLA.Backend)
     |> Nx.as_type(:f32)
     |> Nx.reshape({format.height, format.width, 3})
     |> Nx.transpose(axes: [2, 0, 1])
@@ -155,14 +155,14 @@ defmodule Membrane.StyleTransfer do
     |> Nx.transpose(axes: [1, 2, 0])
     |> clamp()
     |> Nx.round()
-    |> Nx.as_type(:s8)
+    |> Nx.as_type(:u8)
     |> Nx.reverse(axes: [1])
     |> Nx.to_binary()
   end
 
   defp clamp(tensor) do
     tensor
-    |> Nx.max(0)
-    |> Nx.min(255)
+    |> Nx.max(0.0)
+    |> Nx.min(255.0)
   end
 end
