@@ -42,6 +42,7 @@ defmodule Membrane.StyleTransfer.Mixfile do
       {:ortex, "~> 0.1.9"},
       {:nx, "~> 0.7.0"},
       {:exla, "~> 0.7.0"},
+      {:image, "~> 0.48.1"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:dialyxir, ">= 0.0.0", only: :dev, runtime: false},
       {:credo, ">= 0.0.0", only: :dev, runtime: false}

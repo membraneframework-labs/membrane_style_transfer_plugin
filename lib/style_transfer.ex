@@ -167,7 +167,6 @@ defmodule Membrane.StyleTransfer do
     |> clamp()
     |> Nx.round()
     |> Nx.as_type(:u8)
-    |> Nx.reverse(axes: [1])
     |> Nx.to_binary()
   end
 
