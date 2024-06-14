@@ -33,7 +33,7 @@ defmodule Membrane.StyleTransfer.Test do
 
     pipeline = Testing.Pipeline.start_link_supervised!(spec: spec)
 
-    assert_sink_stream_format(pipeline, :sink, stream_format)
+    assert_sink_stream_format(pipeline, :sink, ^stream_format)
     assert_sink_buffer(pipeline, :sink, buffer)
 
     image =
