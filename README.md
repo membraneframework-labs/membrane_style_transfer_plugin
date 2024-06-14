@@ -17,7 +17,7 @@ The package can be installed by adding `membrane_style_transfer_plugin` to your 
 ```elixir
 def deps do
   [
-    {:membrane_style_transfer_plugin, github: "membraneframework-labs/membrane_style_transfer_plugin"}
+    {:membrane_style_transfer_plugin, github: "membraneframework-labs/membrane_style_transfer_plugin", tag: "v0.1.0"}
   ]
 end
 ```
@@ -30,7 +30,7 @@ In the beginning, install necessary dependencies.
 
 ```elixir
 Mix.install([
-  {:membrane_style_transfer_plugin, github: "membraneframework-labs/membrane_style_transfer_plugin"},
+  {:membrane_style_transfer_plugin, github: "membraneframework-labs/membrane_style_transfer_plugin", tag: "v0.1.0"},
   {:membrane_camera_capture_plugin, "~> 0.7.2"},
   {:membrane_ffmpeg_swscale_plugin, "~> 0.15.1"},
   {:membrane_sdl_plugin, "~> 0.18.2"}
