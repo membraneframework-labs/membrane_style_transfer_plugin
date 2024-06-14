@@ -47,8 +47,8 @@ defmodule Example do
 
   @impl true
   def handle_init(_ctx, opts) do
-    height = opts[:image_height]
-    width = opts[:image_width]
+    height = opts[:output_height]
+    width = opts[:output_width]
 
     spec =
       child(Membrane.CameraCapture)
@@ -67,10 +67,10 @@ end
 And run following script:
 
 ```elixir
-{:ok, _supervisor, pipeline} = Membrane.Pipeline.start_link(Example, [style: :vangogh, image_height: 400, image_width: 400])
+{:ok, _supervisor, pipeline} = Membrane.Pipeline.start_link(Example, [style: :vangogh, output_height: 400, output_width: 400])
 ```
 
-If you see that the latency of the output video is increasing, reduce `image_height` or/and `image_width`.
+If you see that the latency of the output video is increasing, reduce `output_height` or/and `output_width`.
 If you see no increase in the latency, you can also increase the value passed in both options.
 
 You can also change the style of played video by changing value passed in `:style` option. Available styles are: `:candy`, `:kaganawa`, `:mosaic`, `:mosaic_mobile`, `:picasso`, `:princess`, `:udnie` and `:vangogh`.
@@ -88,8 +88,8 @@ defmodule RotatingExample do
 
   @impl true
   def handle_init(_ctx, opts) do
-    height = opts[:image_height]
-    width = opts[:image_width]
+    height = opts[:output_height]
+    width = opts[:output_width]
     first_style = :picasso
 
     spec =
@@ -123,7 +123,7 @@ defmodule RotatingExample do
   end
 end
 
-{:ok, _supervisor, pipeline} = Membrane.Pipeline.start_link(RotatingExample, [image_height: 400, image_width: 400])
+{:ok, _supervisor, pipeline} = Membrane.Pipeline.start_link(RotatingExample, [output_height: 400, output_width: 400])
 ```
 
 ## Copyright and License

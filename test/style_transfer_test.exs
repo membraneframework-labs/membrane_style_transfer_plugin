@@ -5,49 +5,29 @@ defmodule Membrane.StyleTransfer.Test do
   import Membrane.Testing.Assertions
   import Membrane.ChildrenSpec
 
-  defmodule ImageSource do
-    alias Membrane.RawVideo
-    use Membrane.Source
-
-    @image_path "./test/fixtures/orginal_bunny.jpg"
-
-    def_output_pad :output, accepted_format: %RawVideo{pixel_format: :RGB}, flow_control: :push
-
-    @impl true
-    def handle_init(_ctx, _opts), do: {[], %{}}
-
-    @impl true
-    def handle_playing(_ctx, state) do
-      image = Image.open!(@image_path)
-
-      stream_format =
-        %RawVideo{
-          pixel_format: :RGB,
-          height: Image.height(image),
-          width: Image.width(image),
-          framerate: nil,
-          aligned: nil
-        }
-
-      payload =
-        Image.to_nx!(image)
-        |> Nx.as_type(:u8)
-        |> Nx.to_binary()
-
-      buffer = %Membrane.Buffer{payload: payload}
-
-      actions = [
-        stream_format: {:output, stream_format},
-        buffer: {:output, buffer}
-      ]
-
-      {actions, state}
-    end
-  end
+  @orginal_bunny_path "./test/fixtures/orginal_bunny.jpg"
 
   defp do_test(style) do
+    image = Image.open!(@orginal_bunny_path)
+
+    stream_format =
+      %Membrane.RawVideo{
+        pixel_format: :RGB,
+        height: Image.height(image),
+        width: Image.width(image),
+        framerate: nil,
+        aligned: true
+      }
+
+    payload =
+      Image.to_nx!(image)
+      |> Nx.as_type(:u8)
+      |> Nx.to_binary()
+
+    buffer = %Membrane.Buffer{payload: payload}
+
     spec =
-      child(ImageSource)
+      child(%Testing.Source{stream_format: stream_format, output: [buffer]})
       |> child(%Membrane.StyleTransfer{style: style})
       |> child(:sink, Testing.Sink)
 
@@ -76,7 +56,7 @@ defmodule Membrane.StyleTransfer.Test do
   [:candy, :kaganawa, :mosaic, :mosaic_mobile, :picasso, :princess, :udnie, :vangogh]
   |> Enum.map(fn style ->
     test "#{inspect(style)} style" do
-      unquote(style)
+      unquote(Macro.escape(style))
       |> do_test()
     end
   end)
